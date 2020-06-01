@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+	<div id="app">
+		<form action="">
+			<h1>Crear Categoría</h1>
+			<div class="form-group">
+				<label for="name">Nombre</label>
+				<input v-model="name"  
+
+					@blur="getCategory"
+					@focus ="div_show= false"
+				
+				class="form-control" type="text" name="name" id="name"></input>
+				<label for="slug">Slug</label>
+				<input readonly v-model="generateSlug" class="form-control" type="text" name="slug" id="slug"></input>
+				<div v-if="div_show" v-bind:class="div_class_slug">
+					{{div_messageslug}}
+					
+				</div>
+				<br v-if="div_show">
+				<label for="description">Descripción</label>
+				<textarea class="form-control" name="description" id="description" cols="30" rows="5"> </textarea>
+			</div>
+
+			<input
+				:disabled="disable_button==1"
+
+				type="submit" value="Guardar" class="btn btn-primary float-right"></input>
+		</form>
+		<br>
+		<br>
+		{{ name}}
+		<br>
+		{{generateSlug }}
+		<br>
+		{{slug}}
+
+	</div>
+
+</div>
+<script>
+	var app= new Vue({
+
+		el:'#app',
+		data:{
+			name:'Crisleivys González',
+			slug:'',
+			div_messageslug: 'Slug Existe',
+			div_class_slug: 'badge badge-danger',
+			div_show:false,
+			disable_button:0
+		},
+		computed:{
+			generateSlug: function(){
+				var char={
+					"á":"a","é":"e","í":"i","ó":"o","ú":"u",
+					"Á":"E","É":"E","Í":"I","Ó":"O","Ú":"U",
+					"ñ":"n","Ñ":"N"," ":"-","_":"-",
+				}
+				var expression = /[áéíóúÁÉÍÓÚñÑ_ ]/g;
+				this.slug = this.name.trim().replace(expression,function(e) {
+
+					return char[e];
+				}).toLowerCase()
+
+				return this.slug;
+
+				//return this.name.trim().replace(/ / ,'-').toLowerCase()
+			}
+		},
+		methods:{
+			getCategory()
+			{
+				let url = 'api/category/'+this.slug;
+				axios.get(url).then(response => {
+					this.div_messageslug = response.data;
+					if (this.div_messageslug==="Slug disponible")
+					{
+						this.div_class_slug = 'badge badge-success';
+						this.disable_button = 0;
+					}
+					else
+					{
+						this.div_class_slug = 'badge badge-danger';
+						this.disable_button=1;
+						console.log(this.disable_button);
+					}
+					this.div_show = true;
+				})
+			}
+		}
+	});
+
+</script>
+
+
+</body>
+</html>
